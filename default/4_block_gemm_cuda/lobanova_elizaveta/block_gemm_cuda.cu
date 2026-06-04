@@ -1,4 +1,4 @@
-#include "naive_gemm_cuda.h"
+#include "block_gemm_cuda.h"
 
 #include <cuda/cmath>
 #include <chrono>
@@ -6,24 +6,31 @@
 #include <iostream>
 #include <algorithm>
 
-__global__ void NaiveGemm(const float *a, const float *b, float *c, int n) {
-    int j = (threadIdx.x + blockIdx.x * blockDim.x) * 4;
-    int i = threadIdx.y + blockIdx.y * blockDim.y;
-    if (i < n && j < n) {
-        float4 sum = make_float4(0.0f, 0.0f, 0.0f, 0.0f);
-        for (int k = 0; k < n; ++k) {
-            float a_k = a[i * n + k];
-            float4 b4_k = reinterpret_cast<const float4*>(&b[k * n + j])[0];
-            sum.x += a_k * b4_k.x;
-            sum.y += a_k * b4_k.y;
-            sum.z += a_k * b4_k.z;
-            sum.w += a_k * b4_k.w;
+#define BLOCK_SIZE 16
+
+__global__ void BlockGemm(const float *a, const float *b, float *c, int n) {
+    int localRow = threadIdx.y;
+    int localCol = threadIdx.x;
+    int globalRow = threadIdx.y + blockIdx.y * blockDim.y;
+    int globalCol = threadIdx.x + blockIdx.x * blockDim.x;
+    float sum = 0.0f;
+    __shared__ float blockA[BLOCK_SIZE * BLOCK_SIZE];
+    __shared__ float blockB[BLOCK_SIZE * BLOCK_SIZE];
+    
+    for (int block = 0; block < gridDim.x; ++block) {
+        blockA[localRow * BLOCK_SIZE + localCol] = a[globalRow * n + block * BLOCK_SIZE + localCol];
+        blockB[localRow * BLOCK_SIZE + localCol] = b[(block * BLOCK_SIZE + localRow) * n + globalCol];
+        __syncthreads();
+
+        for (int k = 0; k < BLOCK_SIZE; ++k) {
+            sum += blockA[localRow * BLOCK_SIZE + k] * blockB[k * BLOCK_SIZE + localCol];
         }
-        reinterpret_cast<float4*>(&c[i * n + j])[0] = sum;
+        __syncthreads();
     }
+    c[globalRow * n + globalCol] = sum;
 }
 
-std::vector<float> NaiveGemmCUDA(const std::vector<float>& a,
+std::vector<float> BlockGemmCUDA(const std::vector<float>& a,
                                  const std::vector<float>& b,
                                  int n) {
     const float* aData = a.data();
@@ -40,9 +47,9 @@ std::vector<float> NaiveGemmCUDA(const std::vector<float>& a,
     cudaMemcpy(devA, aData, dataSize * sizeof(float), cudaMemcpyHostToDevice);
     cudaMemcpy(devB, bData, dataSize * sizeof(float), cudaMemcpyHostToDevice);
 
-    dim3 threadsPerBlock(32, 16); 
-    dim3 blockCount(((n / 4) + threadsPerBlock.x - 1) / threadsPerBlock.x, (n + threadsPerBlock.y - 1) / threadsPerBlock.y);
-    NaiveGemm<<<blockCount, threadsPerBlock>>>(devA, devB, devC, n);
+    dim3 threadsPerBlock(BLOCK_SIZE, BLOCK_SIZE);
+    dim3 blockCount(n / BLOCK_SIZE, n / BLOCK_SIZE);
+    BlockGemm<<<blockCount, threadsPerBlock>>>(devA, devB, devC, n);
 
     std::vector<float> c(dataSize);
     cudaDeviceSynchronize();
@@ -86,7 +93,7 @@ int main() {
     });
 
     auto cRef = NaiveGemmCUDARef(a, b, n);
-    auto c = NaiveGemmCUDA(a, b, n);
+    auto c = BlockGemmCUDA(a, b, n);
     float error = 0.0f;
     for (size_t i = 0; i < n * n; ++i) {
         error = std::max(std::fabs(c[i] - cRef[i]), error);
@@ -96,7 +103,7 @@ int main() {
     std::vector<double> time_list;
     for (int i = 0; i < 4; ++i) {
         auto start = std::chrono::high_resolution_clock::now();
-        NaiveGemmCUDA(a, b, n);
+        BlockGemmCUDA(a, b, n);
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> duration = end - start;
         time_list.push_back(duration.count());
