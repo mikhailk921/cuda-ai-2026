@@ -10,70 +10,53 @@
 
 #define BLOCK_SIZE 256
 
-__global__ void GeluCUDAKernel(const float* in, float* out, int n) {
-    const float sqrt_2_pi1 = 0.0356774069368839264F;
-    const float sqrt_2_pi2 = 22.363861083984375F;
+__global__ void GeluCUDAKernel(const float* __restrict__  in, float* __restrict__ out, int n) {
+    const float sqrt_2_pi1 = -0.071354816f;
+    const float sqrt_2_pi2 = 22.36386f;
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i < n) {
         float x = in[i];
-        out[i] = 0.5f * x * (1 + __tanhf(sqrt_2_pi1 * x * (sqrt_2_pi2 + x * x)));
+        out[i] = x / (1 + __expf(sqrt_2_pi1 * x * (sqrt_2_pi2 + x * x)));
     }
 }
 
 class GeluCUDAHandler {
 public:
-    GeluCUDAHandler() : d_in(nullptr), d_out(nullptr), h_in(nullptr), h_out(nullptr), memSizeLast(0), inputLast(0) {
+    GeluCUDAHandler() : d_in(nullptr), d_out(nullptr), memSizeLast(0), inputLast(0) {
         cudaStreamCreate(&stream);
     }
 
-    std::vector<float> execute(const std::vector<float>& input) {
+    std::vector<float>& execute(const std::vector<float>& input) {
         const size_t memSize = input.size() * sizeof(float);
-        if (input[0] == inputLast && memSize == memSizeLast) {
-            return std::vector<float>(h_out, h_out + input.size());
-        }
         if (memSize > memSizeLast) {
             if (d_in) {
                 cudaFree(d_in);
                 cudaFree(d_out);
-                cudaFreeHost(h_in);
-                cudaFreeHost(h_out);
             }
             cudaMalloc(&d_in, memSize);
             cudaMalloc(&d_out, memSize);
-            cudaMallocHost(&h_in, memSize);
-            cudaMallocHost(&h_out, memSize);
+            output = std::vector<float>(input.size());
             memSizeLast = memSize;
         }
         const uint num_blocks = (input.size() + BLOCK_SIZE - 1) / BLOCK_SIZE;
-        if (input[0] != inputLast) {
-            memcpy(h_in, input.data(), memSize);
-            cudaMemcpyAsync(this->d_in, h_in, memSize, cudaMemcpyHostToDevice, stream);
-            inputLast = input[0];
-        }
+        cudaMemcpyAsync(this->d_in, input.data(), memSize, cudaMemcpyHostToDevice, stream);
         GeluCUDAKernel<<<num_blocks, BLOCK_SIZE,  0, stream>>>(d_in, d_out, input.size());
-        cudaMemcpyAsync(h_out, d_out, memSize, cudaMemcpyDeviceToHost, stream);
+        cudaMemcpyAsync(output.data(), d_out, memSize, cudaMemcpyDeviceToHost, stream);
 
         cudaStreamSynchronize(stream);
-        return std::vector<float>(h_out, h_out + input.size());
+        return output;
     }
 
     ~GeluCUDAHandler() {
         cudaFree(d_in);
         cudaFree(d_out);
-        cudaFreeHost(h_in);
-        cudaFreeHost(h_out);
 
         cudaStreamDestroy(stream);
     }
 private:
     cudaStream_t stream;
     float *d_in, *d_out;
-    float *h_in, *h_out;
+    std::vector<float> output;
     size_t memSizeLast;
     float inputLast;
 };
-
-std::vector<float> GeluCUDA(const std::vector<float>& input) {
-    static GeluCUDAHandler handler;
-    return handler.execute(input);
-}

@@ -7,6 +7,8 @@
 
 #include "naive_gemm_cuda.h"
 
+#define BLOCK_SIZE 16
+
 __global__ void NaiveGemmCUDAKernel(const float* a, const float* b, float* c, int n) {
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
