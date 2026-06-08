@@ -35,19 +35,20 @@ std::vector<float> GeluCUDA(const std::vector<float> &input)
     int numBlocks = cuda::ceil_div(vecLen, numThreads);
     geluKernel<<<numBlocks, numThreads>>>(devInput, static_cast<int>(size));
 
-    // std::vector<float> output(vecLen);
-    // cudaMemcpy(output.data(), devInput, size, cudaMemcpyDeviceToHost);
-
-    float * outPtr;
-    cudaMallocHost(&outPtr, size);
-
+    std::vector<float> output(vecLen);
     cudaDeviceSynchronize();
+    cudaMemcpy(output.data(), devInput, size, cudaMemcpyDeviceToHost);
+
+    // float * outPtr;
+    // cudaMallocHost(&outPtr, size);
+
+    // cudaDeviceSynchronize();
     // cudaMemcpyAsync(outPtr, devInput, size, cudaMemcpyDeviceToHost);
-    cudaMemcpy(outPtr, devInput, size, cudaMemcpyDeviceToHost);
+    // cudaMemcpy(outPtr, devInput, size, cudaMemcpyDeviceToHost);
 
     cudaFree(devInput);
 
-    std::vector<float> output(outPtr, outPtr + vecLen);
-    cudaFreeHost(outPtr);
+    // std::vector<float> output(outPtr, outPtr + vecLen);
+    // cudaFreeHost(outPtr);
     return output;
 }
