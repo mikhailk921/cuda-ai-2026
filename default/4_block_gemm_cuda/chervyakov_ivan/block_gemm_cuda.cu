@@ -1,5 +1,9 @@
 #include "block_gemm_cuda.h"
 
+#include <device_launch_parameters.h>
+#include <cuda_runtime.h>
+#include <cuda/cmath>
+
 __global__ void blockGemmKernelExtShMem(const float *a, const float *b, float *c, int n, int blockSize)
 {
     extern __shared__ float shared_mem[];
