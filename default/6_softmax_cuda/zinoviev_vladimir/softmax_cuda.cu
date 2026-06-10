@@ -122,4 +122,4 @@ private:
 std::vector<float> SoftmaxCUDA(const std::vector<float>& input, int row_size) {
     static SoftmaxCUDAHandler handler;
     return handler.execute(input, row_size);
-} // comment
+}
