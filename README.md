@@ -300,12 +300,12 @@ Here $row\_max$ is $max(x_i)$ for $i=1,..,N$, normally computed independently fo
 
 Implement the function with the following interface in C++ using CUDA:
 ```cpp
-std::vector<float> SoftmaxCUDA(const std::vector<float>& input, int row_size);
+std::vector<float> SoftmaxCUDA(const std::vector<float>& input, int row_count);
 ```
 Note the following:
 - the parameter input holds the matrix elements in row‑major order (all elements of row 0, then row 1, etc.);
-- the number of rows is given by `row_size`;
-- the number of columns can be derived as `col_size = input.size() / row_size` (it is guaranteed that `input.size()` is divisible by row_size);
+- the number of rows is given by `row_count`;
+- the number of columns (size of each row) can be derived as `row_size = input.size() / row_count` (it is guaranteed that `input.size()` is divisible by row_count);
 - the function must compute softmax for each row independently and return a vector of the same size containing the row‑wise softmax results.
 
 Use CUDA to parallelize the computation. The implementation should be efficient – consider using shared memory for per‑row reductions and exponentiations.
@@ -320,7 +320,7 @@ Two files are expected to be uploaded:
 
 #include <vector>
 
-std::vector<float> SoftmaxCUDA(const std::vector<float>& input, int row_size);
+std::vector<float> SoftmaxCUDA(const std::vector<float>& input, int row_count);
 
 #endif // SOFTMAX_CUDA_H
 ```
@@ -328,7 +328,7 @@ std::vector<float> SoftmaxCUDA(const std::vector<float>& input, int row_size);
 ```cpp
 #include "softmax_cuda.h"
 
-std::vector<float> SoftmaxCUDA(const std::vector<float>& input, int row_size) {
+std::vector<float> SoftmaxCUDA(const std::vector<float>& input, int row_count) {
     // Place your implementation here
 }
 ```
