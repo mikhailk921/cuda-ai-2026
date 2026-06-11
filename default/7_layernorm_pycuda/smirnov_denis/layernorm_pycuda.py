@@ -88,10 +88,11 @@ def layernorm_pycuda(input, gamma, beta, row_size, eps=1e-5):
         Flattened matrix of the same shape as input, containing the row‑wise
         normalized results.
     """
-    out = cp.empty_like(input)
+    x = cp.asarray(input)
+    y = cp.empty_like(x)
 
     threads = 1024
     blocks = input.size // row_size
-    layernorm_kernel((blocks,), (threads,), (input, gamma, beta, out, row_size, eps))
+    layernorm_kernel((blocks,), (threads,), (x, gamma, beta, y, row_size, eps))
 
-    return out
+    return cp.asnumpy(y)
