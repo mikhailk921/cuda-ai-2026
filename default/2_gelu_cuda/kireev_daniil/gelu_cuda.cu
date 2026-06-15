@@ -4,9 +4,10 @@
 
 __global__ void GeluCUDAImpl(float* data, int size) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    
     if (idx < size) {
-        auto v = data[idx];
-        data[idx] = v - v / (cuda::std::expf(1.59576912f * v * (1.f + 0.044715f * v * v)) + 1.f);
+        float v = data[idx];
+        data[idx] = v / (1 + __expf(-0.071354816f * v * (22.36386f + v * v)));
     }
 }
 
