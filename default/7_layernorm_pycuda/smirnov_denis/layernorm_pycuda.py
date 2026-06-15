@@ -89,10 +89,12 @@ def layernorm_pycuda(input, gamma, beta, row_size, eps=1e-5):
         normalized results.
     """
     x = cp.asarray(input)
+    g = cp.asarray(gamma)
+    b = cp.asarray(beta)
     y = cp.empty_like(x)
 
     threads = 1024
     blocks = input.size // row_size
-    layernorm_kernel((blocks,), (threads,), (x, gamma, beta, y, row_size, eps))
+    layernorm_kernel((blocks,), (threads,), (x, g, b, y, row_size, eps))
 
     return cp.asnumpy(y)
