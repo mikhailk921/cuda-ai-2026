@@ -2,4 +2,8 @@
               if (b_row < n && col + 3 < n && ((uintptr_t)(&b[b_row * n + col]) & 0xF) == 0)
                                                 ^
 
-1 error detected in the compilation of "/home/crazyproger/sandbox/cuda-ai-2026/default/3_naive_gemm_cuda/zvorykin_aleksandr/naive_gemm_cuda.cu".
+/home/crazyproger/sandbox/cuda-ai-2026/default/3_naive_gemm_cuda/zvorykin_aleksandr/naive_gemm_cuda.cu(102): error: "blockCount" has already been declared in the current scope
+      dim3 blockCount((n / s_VectorWidth + s_TileSize - 1) / s_TileSize,
+           ^
+
+2 errors detected in the compilation of "/home/crazyproger/sandbox/cuda-ai-2026/default/3_naive_gemm_cuda/zvorykin_aleksandr/naive_gemm_cuda.cu".
