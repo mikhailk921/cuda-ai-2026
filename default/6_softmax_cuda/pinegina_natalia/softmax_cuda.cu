@@ -5,56 +5,62 @@
 #include <iostream>
 #include <vector>
 
-template <int BLOCK_SIZE = 512>
+template <int BLOCK_SIZE = 32>
 __global__ void softmax_kernel(const float* __restrict__ input,
                                        float* __restrict__ output,
                                        int N, int D) {
     int row = blockIdx.x;
-    if (row >= N) return;
+    int tid = threadIdx.x;
 
     extern __shared__ float shmem[];
-    float* exps  = shmem;
-    float* red   = shmem + D;
 
-    int tid = threadIdx.x;
     float local_max = -FLT_MAX;
-
     for (int i = tid; i < D; i += BLOCK_SIZE) {
-        local_max = fmaxf(local_max, __ldg(&input[row * D + i]));
+        local_max = fmaxf(local_max, input[row * D + i]);
     }
 
+    float* red = shmem + BLOCK_SIZE;
     red[tid] = local_max;
     __syncthreads();
-    for (int stride = BLOCK_SIZE / 2; stride > 0; stride >>= 1) {
-        if (tid < stride) {
-            red[tid] = fmaxf(red[tid], red[tid + stride]);
+
+    __shared__ float row_max;
+    if(tid == 0)
+    {
+        row_max = -FLT_MAX;
+        for (int i = 0; i < BLOCK_SIZE; ++i)
+        {
+            row_max = fmaxf(red[i], row_max);
         }
-        __syncthreads();
     }
-    float row_max = red[0];
 
+    float sum = 0.0;
     for (int i = tid; i < D; i += BLOCK_SIZE) {
-        exps[i] = expf(__ldg(&input[row * D + i]) - row_max);
+        sum += expf(input[row * D + i] - row_max);
     }
 
-    red[tid] = (tid < D) ? exps[tid] : 0.0f;
+    float* loc_sum = shmem + BLOCK_SIZE;
+    loc_sum[tid] = sum;
     __syncthreads();
-    for (int stride = BLOCK_SIZE / 2; stride > 0; stride >>= 1) {
-        if (tid < stride) {
-            red[tid] += red[tid + stride];
+
+    __shared__ float sum_row;
+    if(tid == 0)
+    {
+        sum_row = 0.0;
+        for(int i = 0; i < BLOCK_SIZE; ++i)
+        {
+            sum_row += loc_sum[i];
         }
-        __syncthreads();
     }
-    float row_sum = red[0];
+    __syncthreads();
 
     for (int i = tid; i < D; i += BLOCK_SIZE) {
-        output[row * D + i] = exps[i] / row_sum;
+        output[row * D + i] = expf(input[row * D + i] - row_max) / sum_row;
     }
 }
 
 void softmax(const float* d_input, float* d_output, int N, int D, cudaStream_t stream = 0)
 {
-    const int blockSize = 512;
+    const int blockSize = 32;
     int sharedMemSize = (D + blockSize) * sizeof(float);
 
     dim3 grid(N);
@@ -87,8 +93,8 @@ std::vector<float> SoftmaxCUDA(const std::vector<float>& input, int row_count)
 
 // int main()
 // {
-//     int N = 16;  // batch size
-//     int D = 16;   // features per sample
+//     int N = 1024;  // batch size
+//     int D = 1024;   // features per sample
 
 //     std::vector<float> h_input(N*D, 0.0), h_output(N*D, 0.0);
 
@@ -96,7 +102,7 @@ std::vector<float> SoftmaxCUDA(const std::vector<float>& input, int row_count)
 //         for(int j = 0; j < N; j++)
 //         {
 //             h_input[i*N+j] = i+j+2;
-//              std::cout << i*N+j << ", "<< h_input[i*N+j] << std::endl;
+//              //std::cout << i*N+j << ", "<< h_input[i*N+j] << std::endl;
 //         }
 
 //     h_output = SoftmaxCUDA(h_input, N);
