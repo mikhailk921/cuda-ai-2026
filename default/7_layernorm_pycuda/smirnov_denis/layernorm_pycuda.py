@@ -1,7 +1,7 @@
 import cupy as cp
 import numpy as np
 
-# comment
+
 layernorm_kernel = cp.RawKernel(r'''
 __device__ __forceinline__ float warpReduceSum(float val) {
     for (int mask = 16; mask > 0; mask /= 2) {
@@ -21,8 +21,11 @@ __device__ __forceinline__ float blockReduceSum(float val) {
     if (lane == 0) shared_val[wid] = val;
     __syncthreads();
 
-    float final_sum = (threadIdx.x < (blockDim.x >> 5)) ? shared_val[lane] : 0.0f;
+    int num_warps = (blockDim.x + 31) >> 5;
+    float final_sum = (lane < num_warps) ? shared_val[lane] : 0.0f;
+
     if (wid == 0) final_sum = warpReduceSum(final_sum);
+    __syncthreads();
 
     return final_sum;
 }
@@ -34,13 +37,16 @@ void layernorm(const float* x, const float* gamma, const float* beta,
     __shared__ float s_inv_std;
 
     int row_start = blockIdx.x * row_size;
+
     float local_sum = 0.0f;
     float local_sq_sum = 0.0f;
 
-    for (int j = threadIdx.x; j < row_size; j += blockDim.x) {
-        float val = x[row_start + j];
-        local_sum += val;
-        local_sq_sum += val * val;
+    const float4* x4 = (const float4*)(x + row_start);
+
+    for (int j = threadIdx.x; j < row_size / 4; j += blockDim.x) {
+        float4 v4 = x4[j];
+        local_sum += v4.x + v4.y + v4.z + v4.w;
+        local_sq_sum += v4.x * v4.x + v4.y * v4.y + v4.z * v4.z + v4.w * v4.w;
     }
 
     float total_sum = blockReduceSum(local_sum);
@@ -57,9 +63,22 @@ void layernorm(const float* x, const float* gamma, const float* beta,
     float mean = s_mean;
     float inv_std = s_inv_std;
 
-    for (int j = threadIdx.x; j < row_size; j += blockDim.x) {
-        int idx = row_start + j;
-        y[idx] = gamma[j] * ((x[idx] - mean) * inv_std) + beta[j];
+    float4* y4 = (float4*)(y + row_start);
+    const float4* gamma4 = (const float4*)gamma;
+    const float4* beta4 = (const float4*)beta;
+
+    for (int j = threadIdx.x; j < row_size / 4; j += blockDim.x) {
+        float4 v4 = x4[j];
+        float4 g4 = gamma4[j];
+        float4 b4 = beta4[j];
+        
+        float4 r4;
+        r4.x = g4.x * ((v4.x - mean) * inv_std) + b4.x;
+        r4.y = g4.y * ((v4.y - mean) * inv_std) + b4.y;
+        r4.z = g4.z * ((v4.z - mean) * inv_std) + b4.z;
+        r4.w = g4.w * ((v4.w - mean) * inv_std) + b4.w;
+
+        y4[j] = r4;
     }
 }
 ''', 'layernorm')
