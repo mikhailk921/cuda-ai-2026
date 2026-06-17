@@ -1,10 +1,11 @@
 #include "naive_gemm_cuda.h"
 
+#include <thread>
+
 
 __global__ void kernel(const float* a, const float* b, float* c, size_t n) {
-    const size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
-    const size_t i = idx / n;
-    const size_t j = idx % n;
+    const size_t i = blockIdx.y * blockDim.y + threadIdx.y;
+    const size_t j = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (i >= n || j >= n) {
         return;
@@ -14,12 +15,14 @@ __global__ void kernel(const float* a, const float* b, float* c, size_t n) {
     for (size_t k = 0; k < n; ++k) {
         sum += a[i * n + k] * b[k * n + j];
     }
-    c[idx] = sum;
+    c[i * n + j] = sum;
 }
 
 std::vector<float> NaiveGemmCUDA(const std::vector<float>& a, const std::vector<float>& b, int n) {
     const size_t numElem = a.size();
-    std::vector<float> c(numElem);
+
+    std::vector<float> c;
+    std::thread t([&](){c.resize(numElem);});
 
     float *gpuA, *gpuB, *gpuC;
     const size_t numBytes = numElem * sizeof(float);
@@ -27,14 +30,13 @@ std::vector<float> NaiveGemmCUDA(const std::vector<float>& a, const std::vector<
     cudaMalloc(&gpuB, numBytes);
     cudaMalloc(&gpuC, numBytes);
 
-    int minGridSize;
-    int blockSize;
-    cudaOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, kernel, 0, 0);
-    int numBlocks = (numElem + blockSize - 1) / blockSize;
+    dim3 blockSize(16, 16);
+    dim3 numBlocks(n / 16, n / 16);
 
     cudaMemcpy(gpuA, a.data(), numBytes, cudaMemcpyHostToDevice);
     cudaMemcpy(gpuB, b.data(), numBytes, cudaMemcpyHostToDevice);
     kernel<<<numBlocks, blockSize>>>(gpuA, gpuB, gpuC, n);
+    t.join();
     cudaMemcpy(c.data(), gpuC, numBytes, cudaMemcpyDeviceToHost);
 
     cudaFree(gpuA);
