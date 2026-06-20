@@ -480,6 +480,7 @@ One may use numba or C strings to write CUDA kernels.
 ## 5_gemm_cublas (4096 elements)
 |Group|Name|Result|Rank|
 |-----|----|------|----|
+|default|ermilov_dmitry|0.0323|10|
 |default|zinoviev_vladimir|0.0346|2|
 |default|pisarevsky_vadim|0.0372|4|
 |default|lobanova_elizaveta|0.0375|6|
@@ -519,24 +520,24 @@ One may use numba or C strings to write CUDA kernels.
 |-----|----|------|-----|
 |default|belov_dmitry|1/7|44|
 |default|chekmaryov_petr|4/7|209|
-|default|chervyakov_ivan|5/7|237|
-|default|ermilov_dmitry|4/7|167|
+|default|chervyakov_ivan|5/7|236|
+|default|ermilov_dmitry|5/7|222|
 |default|kireev_daniil|0/7|0|
 |default|korobeynikov_aleksey|2/7|73|
 |default|kryukov_dmitry|0/7|0|
-|default|lobanova_elizaveta|6/7|351|
+|default|lobanova_elizaveta|6/7|350|
 |default|lukicheva_polina|2/7|85|
 |default|malinin_nikita|2/7|79|
 |default|novozhilov_mikhail|2/7|82|
-|default|pigasin_dmitry|5/7|230|
-|default|pinegina_natalia|6/7|292|
-|default|pisarevsky_vadim|6/7|347|
+|default|pigasin_dmitry|5/7|229|
+|default|pinegina_natalia|6/7|291|
+|default|pisarevsky_vadim|6/7|346|
 |default|rodygin_vadim|3/7|130|
-|default|smirnov_denis|**7/7**|**410**|
+|default|smirnov_denis|**7/7**|**409**|
 |default|vikhrev_ivan|4/7|197|
-|default|zemskov_roman|4/7|214|
-|default|zinoviev_vladimir|**7/7**|**421**|
-|default|znamenskiy_mikhail|6/7|321|
+|default|zemskov_roman|4/7|213|
+|default|zinoviev_vladimir|**7/7**|**420**|
+|default|znamenskiy_mikhail|6/7|320|
 |default|zvorykin_aleksandr|2/7|109|
 
 Passed: 2
