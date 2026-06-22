@@ -393,6 +393,7 @@ One may use numba or C strings to write CUDA kernels.
 |default|lobanova_elizaveta|0.0838|4|
 |**FAST**|**FAST**|**0.0879**|**-**|
 |default|chekmaryov_petr|0.0882|3|
+|default|zemskov_roman|0.0889|19|
 |default|zvorykin_aleksandr|0.1554|9|
 |default|chervyakov_ivan|0.1614|8|
 |default|smirnov_denis|0.1632|2|
@@ -409,7 +410,6 @@ One may use numba or C strings to write CUDA kernels.
 |default|lukicheva_polina|0.2277|10|
 |default|korobeynikov_aleksey|0.3856|13|
 |**REF**|**REF**|**0.4536**|**-**|
-|default|zemskov_roman|TEST FAILED|-|
 |default|kireev_daniil|TEST FAILED|-|
 
 ## 2_gelu_cuda (134217728 elements)
@@ -527,31 +527,31 @@ One may use numba or C strings to write CUDA kernels.
 ## default
 |Group|Name|Passed|Score|
 |-----|----|------|-----|
-|default|belov_dmitry|1/7|44|
+|default|belov_dmitry|1/7|43|
 |default|chekmaryov_petr|4/7|206|
-|default|chervyakov_ivan|5/7|234|
-|default|ermilov_dmitry|6/7|281|
+|default|chervyakov_ivan|5/7|233|
+|default|ermilov_dmitry|6/7|280|
 |default|kireev_daniil|0/7|0|
-|default|korobeynikov_aleksey|3/7|113|
-|default|kryukov_dmitry|2/7|71|
+|default|korobeynikov_aleksey|3/7|112|
+|default|kryukov_dmitry|2/7|70|
 |default|lobanova_elizaveta|**7/7**|**404**|
-|default|lukicheva_polina|2/7|83|
-|default|malinin_nikita|3/7|120|
-|default|novozhilov_mikhail|2/7|81|
-|default|pigasin_dmitry|**7/7**|**345**|
-|default|pinegina_natalia|**7/7**|**339**|
+|default|lukicheva_polina|2/7|82|
+|default|malinin_nikita|3/7|119|
+|default|novozhilov_mikhail|2/7|80|
+|default|pigasin_dmitry|**7/7**|**344**|
+|default|pinegina_natalia|**7/7**|**338**|
 |default|pisarevsky_vadim|6/7|342|
 |default|rodygin_vadim|3/7|129|
-|default|smirnov_denis|**7/7**|**402**|
-|default|vikhrev_ivan|4/7|196|
-|default|zemskov_roman|6/7|324|
-|default|zinoviev_vladimir|**7/7**|**416**|
-|default|znamenskiy_mikhail|6/7|315|
-|default|zvorykin_aleksandr|2/7|109|
+|default|smirnov_denis|**7/7**|**401**|
+|default|vikhrev_ivan|4/7|195|
+|default|zemskov_roman|**7/7**|**367**|
+|default|zinoviev_vladimir|**7/7**|**415**|
+|default|znamenskiy_mikhail|6/7|314|
+|default|zvorykin_aleksandr|2/7|108|
 
-Passed: 5
+Passed: 6
 
-**Total Passed: 5**
+**Total Passed: 6**
 
 ---
 *Maximum Score: 448 (64 per task)*
