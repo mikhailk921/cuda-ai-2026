@@ -401,6 +401,7 @@ One may use numba or C strings to write CUDA kernels.
 |default|zinoviev_vladimir|0.1664|5|
 |default|vikhrev_ivan|0.1686|12|
 |default|ermilov_dmitry|0.1713|16|
+|default|kryukov_dmitry|0.1719|18|
 |default|znamenskiy_mikhail|0.1723|7|
 |default|pigasin_dmitry|0.1725|6|
 |default|malinin_nikita|0.1738|17|
@@ -409,7 +410,6 @@ One may use numba or C strings to write CUDA kernels.
 |default|korobeynikov_aleksey|0.3856|13|
 |**REF**|**REF**|**0.4536**|**-**|
 |default|zemskov_roman|TEST FAILED|-|
-|default|kryukov_dmitry|TEST FAILED|-|
 |default|kireev_daniil|TEST FAILED|-|
 
 ## 2_gelu_cuda (134217728 elements)
@@ -530,21 +530,21 @@ One may use numba or C strings to write CUDA kernels.
 |default|chervyakov_ivan|5/7|235|
 |default|ermilov_dmitry|6/7|282|
 |default|kireev_daniil|0/7|0|
-|default|korobeynikov_aleksey|3/7|116|
-|default|kryukov_dmitry|0/7|0|
+|default|korobeynikov_aleksey|3/7|115|
+|default|kryukov_dmitry|1/7|36|
 |default|lobanova_elizaveta|**7/7**|**404**|
-|default|lukicheva_polina|2/7|85|
-|default|malinin_nikita|2/7|79|
+|default|lukicheva_polina|2/7|84|
+|default|malinin_nikita|2/7|78|
 |default|novozhilov_mikhail|2/7|82|
-|default|pigasin_dmitry|**7/7**|**347**|
-|default|pinegina_natalia|**7/7**|**342**|
+|default|pigasin_dmitry|**7/7**|**346**|
+|default|pinegina_natalia|**7/7**|**341**|
 |default|pisarevsky_vadim|6/7|342|
 |default|rodygin_vadim|3/7|130|
 |default|smirnov_denis|**7/7**|**403**|
 |default|vikhrev_ivan|4/7|196|
 |default|zemskov_roman|6/7|324|
 |default|zinoviev_vladimir|**7/7**|**416**|
-|default|znamenskiy_mikhail|6/7|316|
+|default|znamenskiy_mikhail|6/7|315|
 |default|zvorykin_aleksandr|2/7|109|
 
 Passed: 5
