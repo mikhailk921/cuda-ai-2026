@@ -1,0 +1,5 @@
+/home/crazyproger/sandbox/cuda-ai-2026/default/2_gelu_cuda/zlobin_george/gelu_cuda.cu(28): error: namespace "cuda" has no member "ceil_div"
+      int nBlocks = cuda::ceil_div(size, nThreads);
+                          ^
+
+1 error detected in the compilation of "/home/crazyproger/sandbox/cuda-ai-2026/default/2_gelu_cuda/zlobin_george/gelu_cuda.cu".
