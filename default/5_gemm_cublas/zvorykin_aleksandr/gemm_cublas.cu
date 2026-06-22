@@ -2,6 +2,7 @@
 
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
+#include <cstring>
 
 std::vector<float> GemmCUBLAS(const std::vector<float>& a,
                               const std::vector<float>& b,
@@ -14,7 +15,6 @@ std::vector<float> GemmCUBLAS(const std::vector<float>& a,
     cublasCreate(&handle);
     cudaStreamCreate(&stream);
     cublasSetStream(handle, stream);
-    cublasSetMathMode(handle, CUBLAS_TENSOR_OP_MATH);
 
     float *d_A;
     cudaMalloc(&d_A, dataSize);
