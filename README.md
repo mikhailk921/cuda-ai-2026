@@ -516,6 +516,7 @@ One may use numba or C strings to write CUDA kernels.
 |default|zemskov_roman|0.1691|9|
 |default|smirnov_denis|0.1727|1|
 |default|pisarevsky_vadim|0.1736|5|
+|default|zvorykin_aleksandr|0.1799|12|
 |default|znamenskiy_mikhail|0.1810|3|
 |default|zlobin_george|0.1812|10|
 |**REF**|**REF**|**0.1814**|**-**|
@@ -552,7 +553,7 @@ One may use numba or C strings to write CUDA kernels.
 |default|malinin_nikita|3/7|117|
 |default|novozhilov_mikhail|2/7|79|
 |default|pigasin_dmitry|**7/7**|**339**|
-|default|pinegina_natalia|**7/7**|**327**|
+|default|pinegina_natalia|**7/7**|**326**|
 |default|pisarevsky_vadim|6/7|340|
 |default|putilin_artyom|2/7|60|
 |default|rodygin_vadim|3/7|125|
@@ -560,9 +561,9 @@ One may use numba or C strings to write CUDA kernels.
 |default|vikhrev_ivan|4/7|192|
 |default|zemskov_roman|**7/7**|**364**|
 |default|zinoviev_vladimir|**7/7**|**414**|
-|default|zlobin_george|**7/7**|**292**|
-|default|znamenskiy_mikhail|**7/7**|**359**|
-|default|zvorykin_aleksandr|4/7|194|
+|default|zlobin_george|**7/7**|**291**|
+|default|znamenskiy_mikhail|**7/7**|**358**|
+|default|zvorykin_aleksandr|5/7|239|
 
 Passed: 10
 
